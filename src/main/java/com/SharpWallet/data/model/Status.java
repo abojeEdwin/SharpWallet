@@ -1,4 +1,4 @@
-package com.SharpWallet.model.data;
+package com.SharpWallet.data.model;
 
 public enum Status {
     SUCCESSFUL,
