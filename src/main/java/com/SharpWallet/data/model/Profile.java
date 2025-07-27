@@ -1,4 +1,4 @@
-package com.SharpWallet.model.data;
+package com.SharpWallet.data.model;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
