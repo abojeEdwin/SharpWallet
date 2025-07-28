@@ -2,10 +2,12 @@ package com.SharpWallet.data.repository;
 
 import com.SharpWallet.data.model.Profile;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
+@Repository
 public interface ProfileRepository extends JpaRepository<Profile, Long> {
 
-    Optional<Profile> findProfileByEmailOrPhoneNumber(String email, String phoneNumber);
+    Optional<Profile> findProfileByEmailOrPhone(String email, String phoneNumber);
 }

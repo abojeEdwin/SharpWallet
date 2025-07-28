@@ -7,7 +7,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class AlatPayData {
+public class MonnifyData {
 
     @NotNull
     private String paymentReference;
