@@ -2,7 +2,9 @@ target/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
-.env
+config.env
+# Ignore application.properties
+src/main/resources/application.properties
 
 ### IntelliJ IDEA ###
 .idea/modules.xml

@@ -4,16 +4,10 @@ package com.SharpWallet.dto.request;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.ToString;
 
 @Getter
 @Setter
-@ToString
-public class OpayFundWalletRequest {
-
+public class InitializePayment<T> {
     @NotNull
-    private OpayData data;
-
-    @NotNull
-    private String event;
+    private T data;
 }

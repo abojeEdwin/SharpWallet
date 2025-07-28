@@ -14,12 +14,12 @@ public class FundWalletRequest {
     @NotNull
     private String reference;
 
-    public FundWalletRequest(OpayFundWalletRequest request){
+    public FundWalletRequest(PayStackFundWalletRequest request){
         this.status = request.getEvent();
         this.reference = request.getData().getReference();
     }
 
-    public FundWalletRequest(AlatPayFundWalletRequest request) {
+    public FundWalletRequest(MonnifyFundWalletRequest request) {
         this.status = request.getEventType();
         this.reference = request.getEventData().getPaymentReference();
     }

@@ -1,5 +1,4 @@
-package com.SharpWallet.dto.request;
-
+package com.SharpWallet.dto.response;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
@@ -9,8 +8,12 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString
-public class OpayData {
+public class InitializePaymentResponse {
 
     @NotNull
+    private String url;
+    @NotNull
     private String reference;
+    @NotNull
+    private boolean status;
 }

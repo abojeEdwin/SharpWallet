@@ -1,15 +1,19 @@
 package com.SharpWallet.dto.request;
 
+
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 @Getter
 @Setter
-public class AlatPayFundWalletRequest {
+@ToString
+public class PayStackFundWalletRequest {
 
     @NotNull
-    private String eventType;
+    private PayStackData data;
+
     @NotNull
-    private AlatPayData eventData;
+    private String event;
 }
