@@ -8,6 +8,7 @@ import com.SharpWallet.exception.AccountAlreadyExistException;
 import com.SharpWallet.exception.AuthorizationException;
 import com.SharpWallet.exception.InvalidTransaction;
 
+
 import java.util.List;
 
 public interface WalletService {
