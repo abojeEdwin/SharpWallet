@@ -9,4 +9,4 @@ INSERT INTO Account(id, account_name , account_number , pin , balance, profile_i
     (1, 'customer', '09096042212' , '12345', 0 , 1 );
 
 INSERT INTO Transaction(id, amount, status , account_id , description , recipient_name) VALUES
-    (1 , 1000 , 'PROCESSING' , 1, 'Bills' , 'Hannah')
+    ( "1", 1000 , 'PROCESSING' , 1, 'Bills' , 'Hannah')
