@@ -11,11 +11,12 @@ import java.time.LocalDateTime;
 @Entity
 @Getter
 @Setter
+@Table(name = "wallet_transaction")
 public class Transaction {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private String id;
     private BigDecimal amount;
     private String description;
     @ManyToOne

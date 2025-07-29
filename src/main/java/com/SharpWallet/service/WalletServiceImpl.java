@@ -5,10 +5,7 @@ import com.SharpWallet.data.model.Account;
 import com.SharpWallet.data.model.Profile;
 import com.SharpWallet.data.repository.ProfileRepository;
 import com.SharpWallet.data.repository.WalletAccountRepository;
-import com.SharpWallet.dto.request.CreateAccountRequest;
-import com.SharpWallet.dto.request.CreateProfileRequest;
-import com.SharpWallet.dto.request.FundWalletRequest;
-import com.SharpWallet.dto.request.PerformTransactionRequest;
+import com.SharpWallet.dto.request.*;
 import com.SharpWallet.dto.response.*;
 import com.SharpWallet.exception.AccountAlreadyExistException;
 import com.SharpWallet.exception.AuthorizationException;
@@ -18,11 +15,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.SharpWallet.util.ApiUtil.ACCOUNT_ALREADY_EXIST;
-import static com.SharpWallet.util.ApiUtil.ACCOUNT_CREATED_SUCCESSFULLY;
+import static com.SharpWallet.util.ApiUtil.*;
 
 @Service
 public class WalletServiceImpl implements WalletService{
@@ -37,12 +34,12 @@ public class WalletServiceImpl implements WalletService{
     private ModelMapper modelMapper;
     @Autowired
     private ProfileRepository profileRepository;
-//    @Autowired
-//    @Qualifier("monnifyPayment")
-//    private PaymentService monnifyPaymentService;
-//    @Autowired
-//    @Qualifier("payStackService")
-//    private PaymentService payStackService;
+    @Autowired
+    @Qualifier("monnifyPaymentService")
+    private PaymentService monnifyPaymentService;
+    @Autowired
+    @Qualifier("payStackPaymentService")
+    private PaymentService payStackPaymentService;
     @Autowired
     private TransactionService transactionService;
 
@@ -76,12 +73,64 @@ public class WalletServiceImpl implements WalletService{
 
     @Override
     public ProfileResponse getProfile(String accountNumber, String pin) throws AccountAlreadyExistException, AuthorizationException {
-        return null;
+        Account account = findAccounts(accountNumber);
+        if(account == null) throw new AccountAlreadyExistException(ACCOUNT_ALREADY_EXIST);
+        if(!account.getPin().equals(pin))throw new AuthorizationException(AUTHORIZATION_MESSAGE);
+        return new ProfileResponse(account);
     }
 
     @Override
     public PerformTransactionResponse performTransaction(PerformTransactionRequest request) throws AccountAlreadyExistException, InvalidTransaction {
-        return null;
+        Account account = findAccounts(request.getAccountNumber());
+        boolean isAmountInvalid = request.getAmount().compareTo(BigDecimal.valueOf(20)) < 0;
+        if(isAmountInvalid) throw new InvalidTransaction(AMOUNT_LESS_THAN_FIVE);
+        request.setPaymentMethod(request.getPaymentMethod().toUpperCase());
+        if(!request.getPaymentMethod().equals(MONNIFY) && !request.getPaymentMethod().equals(PAYSTACK)) throw new InvalidTransaction(TRANSACTION_MEANS_NOT_EXIST);
+        PerformTransactionResponse transactionResponse = new PerformTransactionResponse();
+        CreateTransactionResponse createTransactionResponse = transactionService.createTransaction(new CreateTransactionRequest(request,account));
+        createTransactionResponse.setTransactionId(createTransactionResponse.getTransactionId());
+        if(request.getPaymentMethod().equals(PAYSTACK)){
+            fundPaystackWallet(request,createTransactionResponse,account,transactionResponse);
+        }else{
+            fundMonnifyWallet(request,createTransactionResponse,account,transactionResponse);
+        }
+        transactionResponse.setMessage(TRANSACTION_SUCCESSFUL);
+
+        return transactionResponse;
+    }
+
+    private void fundPaystackWallet(PerformTransactionRequest request,CreateTransactionResponse transactionResponse ,Account account,PerformTransactionResponse performTransactionResponse){
+        request.setAmount(request.getAmount().multiply(BigDecimal.valueOf(100)));
+        InitializePayment<PayStackInitializePayment> initializePayment = new  InitializePayment<>();
+        initializePayment.setData(createPaystackPaymentRequest(request.getAmount(), transactionResponse.getTransactionId(), account.getProfile().getEmail()));
+        InitializePaymentResponse initializePaymentResponse = payStackPaymentService.initializeTransaction(initializePayment);
+        performTransactionResponse.setUrl(initializePaymentResponse.getUrl());
+    }
+
+    private void fundMonnifyWallet(PerformTransactionRequest request,CreateTransactionResponse transactionResponse ,Account account,PerformTransactionResponse performTransactionResponse){
+        InitializePayment<MonnifyInitializePayment> monnifyPayment = new InitializePayment<>();
+        monnifyPayment.setData(createMonnifyPaymentRequest(request,account.getAccountName(),account.getProfile().getEmail(), transactionResponse.getTransactionId()));
+        InitializePaymentResponse initializePaymentResponse = monnifyPaymentService.initializeTransaction(monnifyPayment);
+        performTransactionResponse.setUrl(initializePaymentResponse.getUrl());
+    }
+    private MonnifyInitializePayment createMonnifyPaymentRequest(PerformTransactionRequest request, String name, String email, String reference) {
+        MonnifyInitializePayment monnifyPayment = new MonnifyInitializePayment();
+        monnifyPayment.setAmount(request.getAmount());
+        monnifyPayment.setPaymentDescription(request.getDescription());
+        monnifyPayment.setPaymentReference(reference);
+        monnifyPayment.setCurrencyCode(request.getCurrency());
+        monnifyPayment.setCustomerName(name);
+        monnifyPayment.setCustomerEmail(email);
+        monnifyPayment.setContractCode(beanConfig.getMonnifyContractCode());
+        return monnifyPayment;
+    }
+
+    private PayStackInitializePayment createPaystackPaymentRequest(BigDecimal amount, String reference, String email) {
+        PayStackInitializePayment payStackInitializePayment = new PayStackInitializePayment();
+        payStackInitializePayment.setAmount(amount);
+        payStackInitializePayment.setReference(reference);
+        payStackInitializePayment.setEmail(email);
+        return payStackInitializePayment;
     }
 
     @Override
@@ -93,7 +142,8 @@ public class WalletServiceImpl implements WalletService{
     public List<TransactionResponse> findAllTransaction(String accountNumber, String pin) throws AccountAlreadyExistException, AuthorizationException {
         return List.of();
     }
-    private boolean profileExist(String email, String phone) {
-        return profileRepository.findProfileByEmailOrPhone(email, phone).isPresent();
+
+    private Account findAccounts(String accountNumber) throws AccountAlreadyExistException {
+        return repository.findByAccountNumber(accountNumber);
     }
 }
