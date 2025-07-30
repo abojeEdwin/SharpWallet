@@ -7,13 +7,11 @@ services:
       path: /actuator/health
       initialDelaySeconds: 45
     envVars:
-      # This is the crucial line that activates your new properties file on Render
       - key: SPRING_PROFILES_ACTIVE
         value: production
-      # This section links your app to the database
       - key: DATABASE_URL
         fromDatabase:
-          # IMPORTANT: Make sure this name matches your Render Database name!
+          # IMPORTANT: Double-check this name matches your Render Database name!
           name: sharpwallet-db
           property: connectionString
       - key: DATABASE_USER
