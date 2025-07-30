@@ -8,7 +8,7 @@ public class ApiUtil {
     public static final String AMOUNT_LESS_THAN_FIVE = "Amount is less than 20";
     public static final String MONNIFY = "MONNIFY";
     public static final String PAYSTACK = "PAYSTACK";
-    public static final String TRANSACTION_MEANS_NOT_EXIST = "Transaction means not exist";
+    public static final String TRANSACTION_MEANS_NOT_EXIST = "Transaction means does not exist";
     public static final String TRANSACTION_SUCCESSFUL = "Transaction has been created successfully";
     public static final String PAYSTACK_SUCCESS = "charge.success";
     public static final String MONNIFY_SUCCESS = "SUCCESSFUL_TRANSACTION";

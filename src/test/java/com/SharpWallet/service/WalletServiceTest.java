@@ -110,12 +110,12 @@ class WalletServiceTest {
     @Sql(scripts = {"/script/insert.sql"})
     public void testThatAClientCanPerformATransaction() throws AccountAlreadyExistException, InvalidTransaction {
         PerformTransactionRequest request = new  PerformTransactionRequest();
-        request.setAmount(BigDecimal.valueOf(1000.00));
+        request.setAmount(BigDecimal.valueOf(1500.00));
         request.setCurrency("NGN");
         request.setAccountNumber("09096042212");
         request.setDescription("Shopping");
-        request.setPaymentMethod("MONNIFY");
-        request.setRecipientName("Jake");
+        request.setPaymentMethod("PAYSTACK");
+        request.setRecipientName("Mary");
         PerformTransactionResponse response = walletService.performTransaction(request);
         log.info("response:{}",response);
         assertNotNull(response);
@@ -142,7 +142,9 @@ class WalletServiceTest {
     public void testFindAllTransactionsByAccountNumber() throws AccountAlreadyExistException, InvalidTransaction, AuthorizationException {
         List<TransactionResponse>listOfTransactions = walletService.findAllTransaction("09096042212","12345");
         assertThat(listOfTransactions).hasSize(1);
-        assertEquals(listOfTransactions.get(0).getAmount(),BigDecimal.valueOf(1000.0));
+        assertEquals(listOfTransactions.get(0).getDescription(),"Bills");
+
+
     }
 
 

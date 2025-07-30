@@ -13,7 +13,6 @@ public class PayStackFundWalletRequest {
 
     @NotNull
     private PayStackData data;
-
     @NotNull
     private String event;
 }
