@@ -1,6 +1,5 @@
 package com.SharpWallet.dto.response;
 
-
 import com.SharpWallet.data.model.Account;
 import lombok.Getter;
 import lombok.Setter;
