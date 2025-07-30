@@ -1,11 +1,43 @@
-FROM maven:3.8.7-eclipse-temurin-19 AS build
-WORKDIR /app
-COPY pom.xml .
-RUN mvn -B clean package -DskipTests
+#FROM maven:3.8.7-eclipse-temurin-19 AS build
+#WORKDIR /app
+#COPY pom.xml .
+#RUN mvn -B clean package -DskipTests
+#
+#FROM eclipse-temurin:19-jdk
+#WORKDIR /app
+#COPY --from=build /app/target/*.jar SharpWallet.jar
+#EXPOSE 9060
+#ENTRYPOINT ["java", "-jar", "SharpWallet.jar"]
 
-FROM eclipse-temurin:19-jdk
+# Use Java 21 as the base image
+FROM eclipse-temurin:21-jdk-jammy
+
+# Set working directory
 WORKDIR /app
-COPY --from=build /app/target/*.jar SharpWallet.jar
+
+# Copy the Maven wrapper files
+COPY .mvn/ .mvn/
+COPY mvnw pom.xml ./
+
+# Download dependencies (this layer will be cached if pom.xml doesn't change)
+RUN ./mvnw dependency:go-offline
+
+# Copy the project source
+COPY src ./src
+
+# Build the application
+RUN ./mvnw clean package -DskipTests
+
+# Use a smaller runtime image
+FROM eclipse-temurin:21-jre-jammy
+
+WORKDIR /app
+
+# Copy the jar file from the build stage
+COPY --from=0 /app/target/*.jar app.jar
+
+# Expose the port the app runs on
 EXPOSE 9060
-ENTRYPOINT ["java", "-jar", "SharpWallet.jar"]
 
+# Command to run the application
+ENTRYPOINT ["java", "-jar", "SharpWallet.jar"]
