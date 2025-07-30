@@ -6,3 +6,23 @@ services:
     healthCheck:
       path: /actuator/health
       initialDelaySeconds: 45
+    # This section connects your app to the database
+    envVars:
+      # The 'SPRING_PROFILES_ACTIVE' variable tells Spring to use production-specific settings
+      - key: SPRING_PROFILES_ACTIVE
+        value: production
+      # The 'DATABASE_URL' is the full connection string for your database
+      - key: DATABASE_URL
+        fromDatabase:
+          # IMPORTANT: Make sure this name matches the name of your Render Database
+          name: sharpwallet-db
+          property: connectionString
+      # Render also provides individual properties if you need them
+      - key: DATABASE_USER
+        fromDatabase:
+          name: sharpwallet-db
+          property: user
+      - key: DATABASE_PASSWORD
+        fromDatabase:
+          name: sharpwallet-db
+          property: password
