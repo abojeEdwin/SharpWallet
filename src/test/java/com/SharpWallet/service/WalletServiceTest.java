@@ -1,25 +1,23 @@
 package com.SharpWallet.service;
 
-import com.SharpWallet.data.repository.ProfileRepository;
-import com.SharpWallet.data.repository.WalletAccountRepository;
-import com.SharpWallet.dto.request.CreateAccountRequest;
-import com.SharpWallet.dto.request.PerformTransactionRequest;
+import com.SharpWallet.dto.request.*;
 import com.SharpWallet.dto.response.CreateWalletResponse;
 import com.SharpWallet.dto.response.PerformTransactionResponse;
 import com.SharpWallet.dto.response.ProfileResponse;
+import com.SharpWallet.dto.response.TransactionResponse;
 import com.SharpWallet.exception.AccountAlreadyExistException;
 import com.SharpWallet.exception.AuthorizationException;
 import com.SharpWallet.exception.InvalidTransaction;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.jdbc.Sql;
 
 import java.math.BigDecimal;
+import java.util.List;
 
+import static com.SharpWallet.util.ApiUtil.PAYSTACK_SUCCESS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -109,11 +107,12 @@ class WalletServiceTest {
     }
 
     @Test
+    @Sql(scripts = {"/script/insert.sql"})
     public void testThatAClientCanPerformATransaction() throws AccountAlreadyExistException, InvalidTransaction {
         PerformTransactionRequest request = new  PerformTransactionRequest();
-        request.setAmount(BigDecimal.valueOf(1000));
+        request.setAmount(BigDecimal.valueOf(1000.00));
         request.setCurrency("NGN");
-        request.setAccountNumber("09165255306");
+        request.setAccountNumber("09096042212");
         request.setDescription("Shopping");
         request.setPaymentMethod("MONNIFY");
         request.setRecipientName("Jake");
@@ -124,6 +123,28 @@ class WalletServiceTest {
         assertThat(response.getMessage()).isNotNull();
 
     }
+
+    @Test
+    @Sql(scripts = {"/script/insert.sql"})
+    public void testThatATransactionCanBeUpdatedAndAlsoTheAccountBalanceCanBeUpdatedIfSuccessful() throws AccountAlreadyExistException, InvalidTransaction, AuthorizationException {
+        ProfileResponse profileResponse = walletService.getProfile("09096042212","12345");
+        PayStackFundWalletRequest request = new PayStackFundWalletRequest();
+        PayStackData data = new PayStackData();
+        data.setReference("1");
+        request.setData(data);
+        request.setEvent(PAYSTACK_SUCCESS);
+        walletService.fundWallet(new FundWalletRequest(request));
+        assertThat(walletService.getProfile("09096042212","12345").getAmount()).isGreaterThan(profileResponse.getAmount());
+    }
+
+    @Test
+    @Sql(scripts = {"/script/insert.sql"})
+    public void testFindAllTransactionsByAccountNumber() throws AccountAlreadyExistException, InvalidTransaction, AuthorizationException {
+        List<TransactionResponse>listOfTransactions = walletService.findAllTransaction("09096042212","12345");
+        assertThat(listOfTransactions).hasSize(1);
+        assertEquals(listOfTransactions.get(0).getAmount(),BigDecimal.valueOf(1000.0));
+    }
+
 
 
 

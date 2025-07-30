@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -40,16 +41,22 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Override
     public Transaction findTransactionById(String referenceId) throws InvalidTransaction {
-        return null;
+        return transactionRepository.findById(referenceId).orElseThrow(() -> new InvalidTransaction(referenceId));
     }
 
     @Override
     public Transaction updateTransaction(String referenceId, Status status) throws InvalidTransaction {
-        return null;
+        Transaction transaction = findTransactionById(referenceId);
+        transaction.setStatus(status);
+        return transactionRepository.save(transaction);
     }
 
     @Override
     public List<TransactionResponse> findAllTransactionsByAccount(Account account) {
-        return List.of();
+        return transactionRepository
+                .findAllByAccount(account)
+                .stream()
+                .map(TransactionResponse::new)
+                .toList();
     }
 }

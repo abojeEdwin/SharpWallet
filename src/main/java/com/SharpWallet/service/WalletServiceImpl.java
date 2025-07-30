@@ -3,16 +3,20 @@ package com.SharpWallet.service;
 import com.SharpWallet.config.BeanConfig;
 import com.SharpWallet.data.model.Account;
 import com.SharpWallet.data.model.Profile;
+import com.SharpWallet.data.model.Status;
+import com.SharpWallet.data.model.Transaction;
 import com.SharpWallet.data.repository.ProfileRepository;
 import com.SharpWallet.data.repository.WalletAccountRepository;
 import com.SharpWallet.dto.request.*;
 import com.SharpWallet.dto.response.*;
 import com.SharpWallet.exception.AccountAlreadyExistException;
+import com.SharpWallet.exception.AccountDoesNotExistException;
 import com.SharpWallet.exception.AuthorizationException;
 import com.SharpWallet.exception.InvalidTransaction;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -74,14 +78,15 @@ public class WalletServiceImpl implements WalletService{
     @Override
     public ProfileResponse getProfile(String accountNumber, String pin) throws AccountAlreadyExistException, AuthorizationException {
         Account account = findAccounts(accountNumber);
-        if(account == null) throw new AccountAlreadyExistException(ACCOUNT_ALREADY_EXIST);
+        if(account == null) throw new AccountDoesNotExistException(ACCOUNT_DOES_NOT_EXIST);
         if(!account.getPin().equals(pin))throw new AuthorizationException(AUTHORIZATION_MESSAGE);
         return new ProfileResponse(account);
     }
 
     @Override
-    public PerformTransactionResponse performTransaction(PerformTransactionRequest request) throws AccountAlreadyExistException, InvalidTransaction {
+    public PerformTransactionResponse performTransaction(PerformTransactionRequest request) throws AccountDoesNotExistException, InvalidTransaction {
         Account account = findAccounts(request.getAccountNumber());
+        if(account == null) throw new AccountDoesNotExistException(ACCOUNT_DOES_NOT_EXIST);
         boolean isAmountInvalid = request.getAmount().compareTo(BigDecimal.valueOf(20)) < 0;
         if(isAmountInvalid) throw new InvalidTransaction(AMOUNT_LESS_THAN_FIVE);
         request.setPaymentMethod(request.getPaymentMethod().toUpperCase());
@@ -133,14 +138,24 @@ public class WalletServiceImpl implements WalletService{
         return payStackInitializePayment;
     }
 
+    @Async
     @Override
     public void fundWallet(FundWalletRequest request) throws InvalidTransaction {
-
+        if(request.getStatus().equals(PAYSTACK_SUCCESS) || request.getStatus().equals(MONNIFY_SUCCESS)){
+            Transaction transaction = transactionService.updateTransaction(request.getReference(), Status.SUCCESSFUL);
+            Account account = transaction.getAccount();
+            account.setBalance(account.getBalance().add(transaction.getAmount()));
+            repository.save(account);
+        }else{
+            transactionService.updateTransaction(request.getReference(), Status.FAILED);
+        }
     }
 
     @Override
     public List<TransactionResponse> findAllTransaction(String accountNumber, String pin) throws AccountAlreadyExistException, AuthorizationException {
-        return List.of();
+        Account account = findAccounts(accountNumber);
+        if(!account.getPin().equals(pin))throw new AuthorizationException(AUTHORIZATION_MESSAGE);
+        return transactionService.findAllTransactionsByAccount(account);
     }
 
     private Account findAccounts(String accountNumber) throws AccountAlreadyExistException {
