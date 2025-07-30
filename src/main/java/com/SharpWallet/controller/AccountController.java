@@ -1,10 +1,7 @@
 package com.SharpWallet.controller;
 
-import com.SharpWallet.dto.request.CreateAccountRequest;
+import com.SharpWallet.dto.request.*;
 
-import com.SharpWallet.dto.request.FundWalletRequest;
-import com.SharpWallet.dto.request.PayStackFundWalletRequest;
-import com.SharpWallet.dto.request.PerformTransactionRequest;
 import com.SharpWallet.dto.response.ApiResponse;
 import com.SharpWallet.exception.InvalidTransaction;
 import com.SharpWallet.service.WalletService;
@@ -12,10 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 @Controller
 @RequestMapping("/api/v1/sharp_wallet/")
@@ -57,6 +51,34 @@ public class AccountController {
         } catch(InvalidTransaction exception ) {
             return ResponseEntity.badRequest().body(new ApiResponse<>(exception.getMessage(), false));
 
+        }
+    }
+
+    @PostMapping("fund-monnifywallet")
+    public ResponseEntity<ApiResponse<?>> fundMonnifyWallet(@RequestBody MonnifyFundWalletRequest request){
+        try{
+            walletService.fundWallet(new FundWalletRequest(request));
+            return new ResponseEntity<>(HttpStatus.OK);
+        } catch(InvalidTransaction exception ) {
+            return ResponseEntity.badRequest().body(new ApiResponse<>(exception.getMessage(), false));
+        }
+    }
+
+    @PostMapping("findAllTransactions")
+    public ResponseEntity<ApiResponse<?>> getAllTransactions(@RequestParam("accountNumber") String accountNumber, @RequestParam("pin") String pin){
+        try{
+            return ResponseEntity.ok(new ApiResponse<>(walletService.findAllTransaction(accountNumber, pin), true));
+        }catch(Exception exception){
+            return ResponseEntity.badRequest().body(new ApiResponse<>(exception.getMessage(), false));
+        }
+    }
+
+    @PostMapping("getProfile")
+    public ResponseEntity<ApiResponse<?>> getProfile(@RequestParam("accountNumber") String accountNumber, @RequestParam("pin") String pin){
+        try{
+            return ResponseEntity.ok(new ApiResponse<>(walletService.getProfile(accountNumber, pin), true));
+        }catch(Exception exception){
+            return ResponseEntity.badRequest().body(new ApiResponse<>(exception.getMessage(), false));
         }
     }
 
