@@ -17,16 +17,15 @@ WORKDIR /app
 
 # Copy the Maven wrapper files
 COPY .mvn/ .mvn/
-COPY mvnw pom.xml ./
 
 # Download dependencies (this layer will be cached if pom.xml doesn't change)
-RUN ./mvnw dependency:go-offline
+RUN ./mvn dependency:go-offline
 
 # Copy the project source
 COPY src ./src
 
 # Build the application
-RUN ./mvnw clean package -DskipTests
+RUN ./mvn clean package -DskipTests
 
 # Use a smaller runtime image
 FROM eclipse-temurin:21-jre-jammy
@@ -34,7 +33,7 @@ FROM eclipse-temurin:21-jre-jammy
 WORKDIR /app
 
 # Copy the jar file from the build stage
-COPY --from=0 /app/target/*.jar app.jar
+COPY --from=0 /app/target/*.jar SharpWallet.jar
 
 # Expose the port the app runs on
 EXPOSE 9060
