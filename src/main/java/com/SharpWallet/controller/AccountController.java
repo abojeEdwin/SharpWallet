@@ -19,7 +19,7 @@ public class AccountController {
     @Autowired
     WalletService walletService;
 
-    @GetMapping
+    @GetMapping()
     public ResponseEntity<String> wakeUp(){
         return ResponseEntity.accepted().body("Sharp Wallet is awake, sharp and running!");
     }
