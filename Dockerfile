@@ -5,7 +5,7 @@ FROM eclipse-temurin:21-jdk-jammy AS build
 WORKDIR /app
 
 # Copy the Maven wrapper and pom.xml to leverage Docker layer caching
-COPY mvnw pom.xml ./
+COPY mvn pom.xml ./
 
 # Download dependencies (this layer will be cached if pom.xml doesn't change)
 RUN mvn dependency:go-offline -B
@@ -14,7 +14,7 @@ RUN mvn dependency:go-offline -B
 COPY src ./src
 
 # Build the application
-RUN ./mvnw package -DskipTests -B
+RUN ./mvn package -DskipTests -B
 
 # Use a smaller runtime image
 FROM eclipse-temurin:21-jre-jammy
