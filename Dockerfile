@@ -5,7 +5,6 @@ FROM eclipse-temurin:21-jdk-jammy AS build
 WORKDIR /app
 
 # Copy the Maven wrapper and pom.xml to leverage Docker layer caching
-COPY .mvn/ .mvn/
 COPY mvnw pom.xml ./
 
 # Download dependencies (this layer will be cached if pom.xml doesn't change)
