@@ -143,9 +143,9 @@ class WalletServiceTest {
         List<TransactionResponse>listOfTransactions = walletService.findAllTransaction("09096042212","12345");
         assertThat(listOfTransactions).hasSize(1);
         assertEquals(listOfTransactions.get(0).getDescription(),"Bills");
-
-
     }
+
+
 
 
 
