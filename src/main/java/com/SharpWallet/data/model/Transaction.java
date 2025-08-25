@@ -1,0 +1,29 @@
+package com.SharpWallet.data.model;
+
+
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+
+@Entity
+@Getter
+@Setter
+@Table(name = "wallet_transaction")
+public class Transaction {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private String id;
+    private BigDecimal amount;
+    private String description;
+    @ManyToOne
+    private Account account;
+    private String recipientName;
+    @Enumerated(EnumType.STRING)
+    private Status status = Status.PROCESSING;
+    private LocalDateTime createdAt = LocalDateTime.now();
+
+}
