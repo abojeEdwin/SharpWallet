@@ -13,7 +13,7 @@ services:
         fromDatabase:
           name: sharpwallet-db
           property: connectionString
-      - key: DATABASE_USER
+      - key: DATABASE_USERNAME
         fromDatabase:
           name: sharpwallet-db
           property: user
