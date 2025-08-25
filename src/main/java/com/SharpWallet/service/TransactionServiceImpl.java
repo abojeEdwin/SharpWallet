@@ -9,12 +9,10 @@ import com.SharpWallet.dto.response.CreateTransactionResponse;
 import com.SharpWallet.dto.response.TransactionResponse;
 import com.SharpWallet.exception.InvalidTransaction;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 
 @Service
