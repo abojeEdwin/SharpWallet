@@ -1,9 +1,10 @@
-package com.SharpWallet.service;
+package com.SharpWallet.service.impl;
 
 import com.SharpWallet.config.BeanConfig;
 import com.SharpWallet.dto.request.InitializePayment;
 import com.SharpWallet.dto.response.InitializePaymentResponse;
 import com.SharpWallet.dto.response.PaystackResponse;
+import com.SharpWallet.service.PaymentService;
 import com.SharpWallet.util.External;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

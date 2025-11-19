@@ -1,4 +1,4 @@
-package com.SharpWallet.service;
+package com.SharpWallet.service.impl;
 
 import com.SharpWallet.config.BeanConfig;
 import com.SharpWallet.data.model.Account;
@@ -13,6 +13,10 @@ import com.SharpWallet.exception.AccountAlreadyExistException;
 import com.SharpWallet.exception.AccountDoesNotExistException;
 import com.SharpWallet.exception.AuthorizationException;
 import com.SharpWallet.exception.InvalidTransaction;
+import com.SharpWallet.service.PaymentService;
+import com.SharpWallet.service.ProfileService;
+import com.SharpWallet.service.TransactionService;
+import com.SharpWallet.service.WalletService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -26,7 +30,7 @@ import java.util.List;
 import static com.SharpWallet.util.ApiUtil.*;
 
 @Service
-public class WalletServiceImpl implements WalletService{
+public class WalletServiceImpl implements WalletService {
 
     @Autowired
     private ProfileService profileService;

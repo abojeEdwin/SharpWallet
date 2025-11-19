@@ -1,9 +1,10 @@
-package com.SharpWallet.service;
+package com.SharpWallet.service.impl;
 
 import com.SharpWallet.data.model.Profile;
 import com.SharpWallet.data.repository.ProfileRepository;
 import com.SharpWallet.dto.request.CreateProfileRequest;
 import com.SharpWallet.exception.AccountAlreadyExistException;
+import com.SharpWallet.service.ProfileService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

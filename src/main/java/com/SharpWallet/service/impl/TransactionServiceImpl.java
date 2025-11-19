@@ -1,4 +1,4 @@
-package com.SharpWallet.service;
+package com.SharpWallet.service.impl;
 
 import com.SharpWallet.data.model.Account;
 import com.SharpWallet.data.model.Status;
@@ -8,6 +8,7 @@ import com.SharpWallet.dto.request.CreateTransactionRequest;
 import com.SharpWallet.dto.response.CreateTransactionResponse;
 import com.SharpWallet.dto.response.TransactionResponse;
 import com.SharpWallet.exception.InvalidTransaction;
+import com.SharpWallet.service.TransactionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

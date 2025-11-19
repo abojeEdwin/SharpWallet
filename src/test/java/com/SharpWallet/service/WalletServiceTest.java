@@ -8,6 +8,7 @@ import com.SharpWallet.dto.response.TransactionResponse;
 import com.SharpWallet.exception.AccountAlreadyExistException;
 import com.SharpWallet.exception.AuthorizationException;
 import com.SharpWallet.exception.InvalidTransaction;
+import com.SharpWallet.service.impl.WalletServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
