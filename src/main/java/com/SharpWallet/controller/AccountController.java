@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import jakarta.validation.Valid;
 
 @Controller
 @RequestMapping("/api/v1/sharp_wallet/")
@@ -25,7 +26,7 @@ public class AccountController {
     }
 
     @PostMapping("createAccount")
-    public ResponseEntity<ApiResponse<?>> createAccount(@RequestBody CreateAccountRequest request) {
+    public ResponseEntity<ApiResponse<?>> createAccount(@Valid @RequestBody CreateAccountRequest request) {
         try{
             return ResponseEntity.ok(new ApiResponse<>(walletService.createAccount(request),true));
         }catch(Exception exception){
@@ -35,7 +36,7 @@ public class AccountController {
     }
 
     @PostMapping("init-transaction")
-    public ResponseEntity<ApiResponse<?>> initTransaction(@RequestBody PerformTransactionRequest request) {
+    public ResponseEntity<ApiResponse<?>> initTransaction(@Valid @RequestBody PerformTransactionRequest request) {
         try{
             return ResponseEntity.ok(new ApiResponse<>(walletService.performTransaction(request),true));
         }catch(Exception exception){

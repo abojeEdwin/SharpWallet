@@ -4,7 +4,7 @@ import com.SharpWallet.config.BeanConfig;
 import com.SharpWallet.dto.request.InitializePayment;
 import com.SharpWallet.dto.response.InitializePaymentResponse;
 import com.SharpWallet.dto.response.MonnifyResponse;
-import com.SharpWallet.service.PaymentService;
+import com.SharpWallet.service.TransactionService;
 import com.SharpWallet.util.External;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service;
 import java.util.Base64;
 
 @Service
-public class MonnifyPaymentService implements PaymentService {
+public class MonnifyPaymentService implements TransactionService {
 
     @Autowired
     private BeanConfig beanConfig;
@@ -33,7 +33,6 @@ public class MonnifyPaymentService implements PaymentService {
             initializePaymentResponse.setStatus(true);
         }
         return initializePaymentResponse;
-
     }
 
 

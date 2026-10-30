@@ -5,6 +5,7 @@ import com.SharpWallet.data.repository.ProfileRepository;
 import com.SharpWallet.dto.request.CreateProfileRequest;
 import com.SharpWallet.exception.AccountAlreadyExistException;
 import com.SharpWallet.service.ProfileService;
+import jakarta.transaction.Transactional;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,6 +22,7 @@ public class ProfileServiceImpl implements ProfileService {
     private ProfileRepository profileRepository;
 
     @Override
+    @Transactional
     public Profile createProfile(CreateProfileRequest request) throws AccountAlreadyExistException {
         if(profileExist(request.getEmail(),request.getPhone())) throw new AccountAlreadyExistException(ACCOUNT_ALREADY_EXIST);
         Profile profile = modelMapper.map(request,Profile.class);

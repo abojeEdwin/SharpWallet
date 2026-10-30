@@ -13,19 +13,22 @@ import com.SharpWallet.exception.AccountAlreadyExistException;
 import com.SharpWallet.exception.AccountDoesNotExistException;
 import com.SharpWallet.exception.AuthorizationException;
 import com.SharpWallet.exception.InvalidTransaction;
-import com.SharpWallet.service.PaymentService;
-import com.SharpWallet.service.ProfileService;
 import com.SharpWallet.service.TransactionService;
+import com.SharpWallet.service.ProfileService;
+import com.SharpWallet.service.ProviderService;
 import com.SharpWallet.service.WalletService;
+import jakarta.transaction.Transactional;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.annotation.Async;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import static com.SharpWallet.util.ApiUtil.*;
 
@@ -44,22 +47,25 @@ public class WalletServiceImpl implements WalletService {
     private ProfileRepository profileRepository;
     @Autowired
     @Qualifier("monnifyPaymentService")
-    private PaymentService monnifyPaymentService;
+    private TransactionService monnifyPaymentService;
     @Autowired
     @Qualifier("payStackPaymentService")
-    private PaymentService payStackPaymentService;
+    private TransactionService payStackPaymentService;
     @Autowired
-    private TransactionService transactionService;
+    private ProviderService transactionService;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
 
     @Override
+    @Transactional
     public CreateWalletResponse createAccount(CreateAccountRequest request) throws AccountAlreadyExistException {
         Profile profile = profileService.createProfile(modelMapper.map(request, CreateProfileRequest.class));
 
         Account newAccount = new Account();
         newAccount.setAccountNumber(request.getPhoneNumber());
         newAccount.setAccountName(request.getFirstName() +" "+ request.getLastName());
-        newAccount.setPin(request.getPin());
+        newAccount.setPin(passwordEncoder.encode(request.getPin()));
         newAccount.setProfile(profile);
         Account savedAccount = repository.save(newAccount);
 
@@ -83,18 +89,22 @@ public class WalletServiceImpl implements WalletService {
     public ProfileResponse getProfile(String accountNumber, String pin) throws AccountAlreadyExistException, AuthorizationException {
         Account account = findAccounts(accountNumber);
         if(account == null) throw new AccountDoesNotExistException(ACCOUNT_DOES_NOT_EXIST);
-        if(!account.getPin().equals(pin))throw new AuthorizationException(AUTHORIZATION_MESSAGE);
+        if(!passwordEncoder.matches(pin, account.getPin()))throw new AuthorizationException(AUTHORIZATION_MESSAGE);
         return new ProfileResponse(account);
     }
 
     @Override
+    @Transactional
     public PerformTransactionResponse performTransaction(PerformTransactionRequest request) throws AccountDoesNotExistException, InvalidTransaction {
         Account account = findAccounts(request.getAccountNumber());
         if(account == null) throw new AccountDoesNotExistException(ACCOUNT_DOES_NOT_EXIST);
         boolean isAmountInvalid = request.getAmount().compareTo(BigDecimal.valueOf(20)) < 0;
         if(isAmountInvalid) throw new InvalidTransaction(AMOUNT_LESS_THAN_FIVE);
-        request.setPaymentMethod(request.getPaymentMethod().toUpperCase());
-        if(!request.getPaymentMethod().equals(MONNIFY) && !request.getPaymentMethod().equals(PAYSTACK)) throw new InvalidTransaction(TRANSACTION_MEANS_NOT_EXIST);
+        String paymentMethod = request.getPaymentMethod() == null
+                ? ""
+                : request.getPaymentMethod().toUpperCase(Locale.ROOT);
+        if(!paymentMethod.equals(MONNIFY) && !paymentMethod.equals(PAYSTACK)) throw new InvalidTransaction(TRANSACTION_MEANS_NOT_EXIST);
+        request.setPaymentMethod(paymentMethod);
         PerformTransactionResponse transactionResponse = new PerformTransactionResponse();
         CreateTransactionResponse createTransactionResponse = transactionService.createTransaction(new CreateTransactionRequest(request,account));
         createTransactionResponse.setTransactionId(createTransactionResponse.getTransactionId());
@@ -142,11 +152,15 @@ public class WalletServiceImpl implements WalletService {
         return payStackInitializePayment;
     }
 
-    @Async
     @Override
+    @Transactional
     public void fundWallet(FundWalletRequest request) throws InvalidTransaction {
         if(request.getStatus().equals(PAYSTACK_SUCCESS) || request.getStatus().equals(MONNIFY_SUCCESS)){
-            Transaction transaction = transactionService.updateTransaction(request.getReference(), Status.SUCCESSFUL);
+            Transaction transaction = transactionService.findTransactionById(request.getReference());
+            if (transaction.getStatus() == Status.SUCCESSFUL) {
+                return;
+            }
+            transaction = transactionService.updateTransaction(request.getReference(), Status.SUCCESSFUL);
             Account account = transaction.getAccount();
             account.setBalance(account.getBalance().add(transaction.getAmount()));
             repository.save(account);
@@ -158,7 +172,7 @@ public class WalletServiceImpl implements WalletService {
     @Override
     public List<TransactionResponse> findAllTransaction(String accountNumber, String pin) throws AccountAlreadyExistException, AuthorizationException {
         Account account = findAccounts(accountNumber);
-        if(!account.getPin().equals(pin))throw new AuthorizationException(AUTHORIZATION_MESSAGE);
+        if(!passwordEncoder.matches(pin, account.getPin()))throw new AuthorizationException(AUTHORIZATION_MESSAGE);
         return transactionService.findAllTransactionsByAccount(account);
     }
 

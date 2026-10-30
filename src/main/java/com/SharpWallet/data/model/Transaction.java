@@ -17,6 +17,8 @@ public class Transaction {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
+    @Version
+    private long version;
     private BigDecimal amount;
     private String description;
     @ManyToOne

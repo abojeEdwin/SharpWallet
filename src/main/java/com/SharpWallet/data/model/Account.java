@@ -13,6 +13,9 @@ public class Account {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Version
+    private long version;
+
     private String accountName;
     private String accountNumber;
     private BigDecimal balance = BigDecimal.ZERO;

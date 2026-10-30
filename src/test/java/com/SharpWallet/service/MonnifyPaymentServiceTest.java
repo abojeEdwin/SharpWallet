@@ -24,7 +24,7 @@ class MonnifyPaymentServiceTest {
 
     @Autowired
     @Qualifier("monnifyPaymentService")
-    PaymentService monnifyPaymentService;
+    TransactionService monnifyPaymentService;
 
     @Test
     public void testThatInitializePayment() {

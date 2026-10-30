@@ -2,7 +2,8 @@ package com.SharpWallet.dto.request;
 
 
 import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -13,15 +14,16 @@ public class CreateAccountRequest {
 
     @Email
     private String email;
-    @NotNull
+    @NotBlank
     private String phoneNumber;
-    @NotNull
+    @NotBlank
+    @Pattern(regexp = "\\d{4,6}", message = "PIN must contain 4 to 6 digits")
     private String pin;
-    @NotNull
+    @NotBlank
     private String firstName;
-    @NotNull
+    @NotBlank
     private String lastName;
-    @NotNull
+    @NotBlank
     private String address;
 
 }

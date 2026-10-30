@@ -18,7 +18,7 @@ class PayStackPaymentServiceTest {
 
     @Autowired
     @Qualifier("payStackPaymentService")
-    private PaymentService paymentService;
+    private TransactionService paymentService;
 
 
     @Test

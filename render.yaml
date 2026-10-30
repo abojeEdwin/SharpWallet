@@ -3,9 +3,7 @@ services:
     name: sharpwallet
     env: docker
     plan: free
-#    healthCheck:
-#      path: /actuator/health
-#      initialDelaySeconds: 45
+    healthCheckPath: /actuator/health
     envVars:
       - key: SPRING_PROFILES_ACTIVE
         value: production

@@ -8,7 +8,7 @@ import com.SharpWallet.dto.request.CreateTransactionRequest;
 import com.SharpWallet.dto.response.CreateTransactionResponse;
 import com.SharpWallet.dto.response.TransactionResponse;
 import com.SharpWallet.exception.InvalidTransaction;
-import com.SharpWallet.service.TransactionService;
+import com.SharpWallet.service.ProviderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,13 +17,14 @@ import java.util.List;
 
 
 @Service
-public class TransactionServiceImpl implements TransactionService {
+public class TransactionServiceImpl implements ProviderService {
 
     @Autowired
     private TransactionRepository transactionRepository;
 
     @Override
     public CreateTransactionResponse createTransaction(CreateTransactionRequest request) {
+
         Transaction transaction = new Transaction();
         transaction.setAmount(request.getAmount());
         transaction.setDescription(request.getDescription());
@@ -33,6 +34,7 @@ public class TransactionServiceImpl implements TransactionService {
         transaction.setStatus(Status.PROCESSING);
         transaction.setAccount(request.getAccount());
         Transaction savedTransaction = transactionRepository.save(transaction);
+
         CreateTransactionResponse response = new CreateTransactionResponse();
         response.setTransactionId(savedTransaction.getId());
         return response;
